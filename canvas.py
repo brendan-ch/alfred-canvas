@@ -9,14 +9,15 @@ def get_object(objectType, maxAge, url, arg1):  # one function for all object ty
   object1 = wf.cached_data("%s-%s" % (arg1, objectType), max_age=maxAge)
 
   if (not object1):
-    response = requests.get(url)
+    # response = requests.get(url)
+    response = requests.get(url, headers={"Authorization": "Bearer %s" % ACCESS_TOKEN})
     object1 = response.json()
     wf.cache_data("%s-%s" % (arg1, objectType), object1)
   
   return object1
 
 def get_courses():  # list favorite courses
-  response = requests.get("https://%s/api/v1/users/self/favorites/courses?access_token=%s" % (URL, ACCESS_TOKEN))
+  response = requests.get("https://%s/api/v1/users/self/favorites/courses" % (URL), headers={"Authorization": "Bearer %s" % ACCESS_TOKEN})
   return response.json()  # returns list of course objects
 
 def get_modules(courseID):
@@ -135,7 +136,7 @@ def main(wf):
     if (command == "!get_tabs"):
       search = "".join(argList[1:])
 
-      tabs = get_object(objectType="tabs", maxAge=1200, url="https://%s/api/v1/courses/%s/tabs?access_token=%s" % (URL, argList[0], ACCESS_TOKEN), arg1=argList[0])
+      tabs = get_object(objectType="tabs", maxAge=1200, url="https://%s/api/v1/courses/%s/tabs" % (URL, argList[0]), arg1=argList[0])
 
       def key_for_tab(tab):
         return u'{}'.format(tab['label'].replace(u'\xa0', u' '), min_score=64)
@@ -149,7 +150,7 @@ def main(wf):
     elif (command == "!get_files"):
       search = "".join(argList[1:])
 
-      files = get_object(objectType="files", maxAge=60, url="https://%s/api/v1/courses/%s/files?access_token=%s" % (URL, argList[0], ACCESS_TOKEN), arg1=argList[0])
+      files = get_object(objectType="files", maxAge=60, url="https://%s/api/v1/courses/%s/files" % (URL, argList[0]), arg1=argList[0])
 
       def key_for_file(file1):
         return u'{} {}'.format(file1['display_name'].replace(u'\xa0', u' '), file1['filename'].replace(u'\xa0', u' '), min_score=64)
@@ -162,7 +163,7 @@ def main(wf):
         # print("file1: %s" % file1)
 
     elif (command == "!get_page"):
-      page = get_object(objectType="page", maxAge=120, url="https://%s/api/v1/courses/%s/pages/%s?access_token=%s" % (URL, argList[0], argList[1], ACCESS_TOKEN), arg1=argList[1])
+      page = get_object(objectType="page", maxAge=120, url="https://%s/api/v1/courses/%s/pages/%s" % (URL, argList[0], argList[1]), arg1=argList[1])
 
       links = get_links(page[u'body'])
       if (remove_html(page[u'body']) == ''): page[u'body'] = "Page is empty."
@@ -177,7 +178,7 @@ def main(wf):
     
     elif (command == "!get_announcements"):
       search = "".join(argList[1:])
-      announcements = get_object(objectType="announcements", maxAge=60, url="https://%s/api/v1/announcements?context_codes[]=course_%s&access_token=%s" % (URL, argList[0], ACCESS_TOKEN), arg1=argList[0])
+      announcements = get_object(objectType="announcements", maxAge=60, url="https://%s/api/v1/announcements?context_codes[]=course_%s" % (URL, argList[0]), arg1=argList[0])
 
       def key_for_announcement(announcement):
         return u'{} {}'.format(announcement['title'], remove_html(announcement['message']), min_score=64)
@@ -194,7 +195,7 @@ def main(wf):
       # for announcement in announcements: wf.add_item(title=announcement[u'title'], subtitle=remove_html(announcement[u'message']), valid=True, arg="Message: %s" % remove_html(announcement[u'message']))
 
     elif (command == "!get_announcement"):
-      announcements = get_object(objectType="announcements", maxAge=60, url="https://%s/api/v1/announcements?context_codes[]=course_%s&access_token=%s" % (URL, argList[0], ACCESS_TOKEN), arg1=argList[0])
+      announcements = get_object(objectType="announcements", maxAge=60, url="https://%s/api/v1/announcements?context_codes[]=course_%s" % (URL, argList[0]), arg1=argList[0])
 
       announcement = {}
       for item in announcements:
@@ -214,7 +215,7 @@ def main(wf):
     elif (command == "!get_modules"):  # outdated
       search = "".join(argList[1:])
 
-      modules = get_object(objectType="modules", maxAge=60, url="https://%s/api/v1/courses/%s/modules?access_token=%s" % (URL, argList[0], ACCESS_TOKEN), arg1=argList[0])
+      modules = get_object(objectType="modules", maxAge=60, url="https://%s/api/v1/courses/%s/modules" % (URL, argList[0]), arg1=argList[0])
 
       def key_for_module(module):
         return u'{}'.format(module['name'], min_score=64)
@@ -226,7 +227,7 @@ def main(wf):
     elif (command == "!get_module_items"):
       search = "".join(argList[2:])
 
-      items = get_object(objectType="items", maxAge=60, url="https://%s/api/v1/courses/%s/modules/%s/items?access_token=%s" % (URL, argList[0], argList[1], ACCESS_TOKEN), arg1=argList[0])
+      items = get_object(objectType="items", maxAge=60, url="https://%s/api/v1/courses/%s/modules/%s/items" % (URL, argList[0], argList[1]), arg1=argList[0])
 
       def key_for_item(item):
         return u'{}'.format(item['title'], min_score=64)
