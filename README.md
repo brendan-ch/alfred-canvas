@@ -1,6 +1,6 @@
 # Alfred-Canvas
 
-Access Canvas classes, announcements, modules, and more through Alfred. Note that as of right now, this workflow requires you to manually get an API key from Canvas, which is a violation of their terms of service. Please use this workflow at your own risk.
+Access Canvas Instructure classes, announcements, modules, and more through Alfred. Note that as of right now, this workflow requires you to manually get an API key from Canvas, which is a violation of their terms of service. Please use this workflow at your own risk.
 
 ## Setup
 
