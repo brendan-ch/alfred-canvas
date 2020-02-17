@@ -3,13 +3,10 @@ import sys
 import datetime
 from workflow import Workflow, ICON_WARNING, ICON_ERROR
 
-# URL = "iusd.instructure.com"
-
 def get_object(objectType, maxAge, url, arg1):  # one function for all object types
-  object1 = wf.cached_data("%s-%s" % (arg1, objectType), max_age=maxAge)
+  object1 = wf.cached_data("%s-%s" % (arg1, objectType), max_age=maxAge)  # objectType and arg1 only determine cache location; no effect on URL
 
   if (not object1):
-    # response = requests.get(url)
     response = requests.get(url, headers={"Authorization": "Bearer %s" % ACCESS_TOKEN})
     object1 = response.json()
     wf.cache_data("%s-%s" % (arg1, objectType), object1)
@@ -40,9 +37,6 @@ def get_tabs(courseID):  # obsolete
     tabs = requests.get("https://%s/api/v1/courses/%s/tabs?access_token=%s" % (URL, courseID, ACCESS_TOKEN))
     tabs = tabs.json()
     wf.cache_data("%s-tabs" % courseID, tabs)
-  
-  # response = requests.get("https://%s/api/v1/courses/%s/tabs?access_token=%s" % (URL, courseID, ACCESS_TOKEN))
-  # return response.json()
   return tabs
 
 def get_assignments(courseID):
@@ -67,7 +61,7 @@ def get_files(courseID):
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-def get_file_from_id(courseID, fileID):
+def get_file_from_id(courseID, fileID):  # get file object from module id
   file1 = wf.cached_data("%s-file" % fileID, max_age=172800)  # file object
 
   if (not file1):
@@ -130,7 +124,6 @@ def main(wf):
 
   if (len(query) and query[0] == "!"):
     command = query.split(" ")[0]
-    # arg = query.split(" ")
     arg = query[len(command) + 1:]
     argList = query.split(" ")[1:]
 
