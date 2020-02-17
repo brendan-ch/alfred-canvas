@@ -19,7 +19,8 @@ def get_object(objectType, maxAge, url, arg1):  # one function for all object ty
 def get_courses():  # list favorite courses
   response = requests.get("https://%s/api/v1/users/self/favorites/courses" % (URL), headers={"Authorization": "Bearer %s" % ACCESS_TOKEN})
   return response.json()  # returns list of course objects
-
+  
+# ~~~~~~~~~~OBSOLETE~~~~~~~~~~
 def get_modules(courseID):
   response = requests.get("https://%s/api/v1/courses/%s/modules?access_token=%s" % (URL, courseID, ACCESS_TOKEN))
   return response.json()
@@ -63,6 +64,8 @@ def get_page(courseID, pageURL):
 def get_files(courseID):
   response = requests.get("https://%s/api/v1/courses/%s/files?access_token=%s" % (URL, courseID, ACCESS_TOKEN))
   return response.json()
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 def get_file_from_id(courseID, fileID):
   file1 = wf.cached_data("%s-file" % fileID, max_age=172800)  # file object
