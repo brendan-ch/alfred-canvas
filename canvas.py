@@ -158,7 +158,8 @@ def main(wf):
     elif (command == "!get_page"):
       page = get_object(objectType="page", maxAge=120, url="https://%s/api/v1/courses/%s/pages/%s" % (URL, argList[0], argList[1]), arg1=argList[1])
 
-      links = get_links(page[u'body'])
+      links = remove_duplicates(get_links(page[u'body']))
+
       if (remove_html(page[u'body']) == ''): page[u'body'] = "Page is empty."
 
       if (page):
@@ -190,7 +191,7 @@ def main(wf):
       for item in announcements:
         if (str(item[u'id']) == str(argList[1])): announcement = item
 
-      links = get_links(announcement[u'message'])
+      links = remove_duplicates(get_links(announcement[u'message']))
 
       if (announcement != {}):
         wf.add_item(title="Show full message", subtitle=remove_html(announcement[u'message']), valid=True, arg="Message: \n\n%s" % remove_html(announcement[u'message']), icon="info.png")
