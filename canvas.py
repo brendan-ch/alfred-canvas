@@ -154,9 +154,6 @@ def main(wf):
       files = wf.filter(search, files, key_for_file)
 
       for file1 in files: wf.add_item(title=file1['display_name'].replace(u'\xa0', u' '), subtitle=file1['url'], valid=True, arg="!open_url %s" % file1[u'url'], icon="assignment.png")
-        # wf.add_item(title=str(file1), valid=True, arg="!copy %s" % str(file1))
-        # wf.add_item(title=file1['display_name'])
-        # print("file1: %s" % file1)
 
     elif (command == "!get_page"):
       page = get_object(objectType="page", maxAge=120, url="https://%s/api/v1/courses/%s/pages/%s" % (URL, argList[0], argList[1]), arg1=argList[1])
@@ -183,12 +180,8 @@ def main(wf):
 
       if (announcements):
         for announcement in announcements: wf.add_item(title=announcement[u'title'], subtitle="Posted at: %s" % announcement[u'posted_at'], valid=True, arg="!get_announcement %s %s" % (argList[0], announcement[u'id']), icon="announcements.png")
-        # for announcement in announcements: wf.add_item(str(announcement), valid=True, arg="!copy %s" % str(announcement))
-        # for announcement in announcements: print(announcement[u'title'])
       else:
         wf.add_item(title="No announcements match your search", icon=ICON_WARNING)
-      
-      # for announcement in announcements: wf.add_item(title=announcement[u'title'], subtitle=remove_html(announcement[u'message']), valid=True, arg="Message: %s" % remove_html(announcement[u'message']))
 
     elif (command == "!get_announcement"):
       announcements = get_object(objectType="announcements", maxAge=60, url="https://%s/api/v1/announcements?context_codes[]=course_%s" % (URL, argList[0]), arg1=argList[0])
@@ -197,7 +190,6 @@ def main(wf):
       for item in announcements:
         if (str(item[u'id']) == str(argList[1])): announcement = item
 
-      # links = get_links(remove_html(announcement[u'message']))
       links = get_links(announcement[u'message'])
 
       if (announcement != {}):
@@ -208,7 +200,7 @@ def main(wf):
 
         wf.add_item(title="Open announcement page", subtitle="https://%s/courses/%s/announcements/%s" % (URL, argList[0], argList[1]), valid=True, arg="!open_url https://%s/courses/%s/announcements/%s" % (URL, argList[0], argList[1]), icon="link.png")
     
-    elif (command == "!get_modules"):  # outdated
+    elif (command == "!get_modules"):
       search = "".join(argList[1:])
 
       modules = get_object(objectType="modules", maxAge=60, url="https://%s/api/v1/courses/%s/modules" % (URL, argList[0]), arg1=argList[0])
@@ -236,9 +228,8 @@ def main(wf):
         elif (item[u'type'] == "Assignment"): wf.add_item(title=item[u'title'], subtitle=str(item[u'type']), valid=True, arg="!get_%s %s %s" % (item[u'type'].lower(), argList[0], item[u'content_id']), icon="%s.png" % (item[u'type'].lower()))
         elif (item[u'type'] == "Page"): wf.add_item(title=item[u'title'], subtitle=str(item[u'type']), valid=True, arg="!get_%s %s %s " % (item[u'type'].lower(), argList[0], item[u'page_url']), icon="%s.png" % (item[u'type'].lower()))
         else: wf.add_item(title=item[u'title'], subtitle=str(item[u'type']), valid=True, arg="!open_url %s" % item[u'html_url'], icon="%s.png" % item[u'type'].lower())
-        # print(item[u'title'])
 
-    elif (command == "!get_module_item"):
+    elif (command == "!get_module_item"):  # obsolete
       items = wf.cached_data("%s-items" % argList[0], max_age=60)
 
       if (not items):
@@ -268,9 +259,6 @@ def main(wf):
         return u'{}'.format(assignments[u'name'], min_score=64)
 
       assignments = wf.filter(search, assignments, key_for_assignment)
-
-      # if (search == "refresh"):
-        # wf.add_item(title="Refresh assignments", subtitle="Select this action to check Canvas for new assignments", valid=True, arg="!clear_cache %s" % (argList[0]), icon="refresh.png")
       
       for assignment in assignments: wf.add_item(title=assignment[u'name'], subtitle=str(assignment[u'id']), valid=True, arg="!get_assignment %s %s" % (argList[0], str(assignment[u'id'])), icon="assignments.png")
 
@@ -298,9 +286,7 @@ def main(wf):
           submissionText = "Submitted at: %s" % submission["submitted_at"]
           submissionIcon = "submitted.png"
 
-        # links = get_links(remove_html(assignment[u'description']))  # is empty list if no links
         links = remove_duplicates(get_links(assignment[u'description']))
-        # links = list(dict.fromkeys(links))
 
         wf.add_item(title="Show full description", subtitle=remove_html(assignment[u'description']), valid=True, arg="Description: \n\n%s" % remove_html(assignment[u'description']), icon="info.png")
         
@@ -314,7 +300,6 @@ def main(wf):
         wf.add_item(title="Invalid assignment or course ID.", subtitle="Please try again using a different assignment or course ID.")
 
     elif (command == "!set_url"):
-      # wf.store_data("url", argList[0])
       wf.add_item(title="Set Canvas URL to https://%s" % argList[0], subtitle="Current URL: https://%s" % str(URL), valid=True, arg="!url_set %s" % argList[0], icon="link.png")
     
     elif (command == "!url_set"):
@@ -333,7 +318,6 @@ def main(wf):
       wf.clear_cache()  # force update cache with new API data
 
     else:
-      # listCommands = ["!get_tabs", "!get_files", "!get_page", "!get_announcements", "!get_announcement", "!get_modules", "!get_module_items", "!get_sections", "!get_assignments", "!get_assignment", "!set_url", "!clear_cache", "!save_api_key"]
       listCommands = [{u"name": "!set_url",
                        u"description": u"Set the custom Canvas URL used by your district or institution."},
                       {u"name": "!clear_cache",
