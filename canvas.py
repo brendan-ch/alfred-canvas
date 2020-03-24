@@ -1,4 +1,3 @@
-import requests
 import sys
 from datetime import datetime
 from workflow import Workflow, ICON_WARNING, ICON_ERROR
@@ -123,6 +122,7 @@ def remove_duplicates(list1):  # remove duplicates from list
   return newList
 
 def main(wf):
+  import requests
 
   log.debug("Today is %s" % TODAY)
 
