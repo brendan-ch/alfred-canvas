@@ -363,13 +363,39 @@ def main(wf):
       wf.save_password("api-key", str(argList[0]))
       wf.clear_cache()  # force update cache with new API data
 
+    elif (command == "!set_download_paths"):
+      paths = wf.stored_data('paths')
+
+      wf.add_item(title="Add new path", valid=True, arg="!add_path ")
+
+      if (paths):
+        for item in paths:
+          wf.add_item(item)
+
+    elif (command == "!add_path"):
+      wf.add_item(title="Enter new path: %s" % argList[0], valid=True, arg="!path_add %s" % argList[0])
+
+    elif (command == "!path_add"):
+      paths = wf.stored_data('paths')
+      
+      if (isinstance(paths, list)):
+        log.debug("Appending new path %s to list %s" % (argList[0], paths))
+        paths.append(argList[0])
+      else:
+        log.debug("No list detected, setting new path %s to list" % (argList[0]))
+        paths = [argList[0]]
+
+      wf.store_data('paths', paths)
+
     else:
       listCommands = [{u"name": "!set_url",
                        u"description": u"Set the custom Canvas URL used by your district or institution."},
                       {u"name": "!clear_cache",
                        u"description": u"Clear all cached data. Useful when debugging."},
                       {u"name": "!save_api_key",
-                       u"description": u"Save the access key generated in Canvas."}]
+                       u"description": u"Save the access key generated in Canvas."},
+                      {u"name": u"!set_download_paths",
+                       u"description": u"Set default paths for file downloads"}]
 
       def key_for_command(command):
         return "{}".format(command[u'name'], min_score=64)
