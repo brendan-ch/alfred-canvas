@@ -1,3 +1,4 @@
+from lib import requests
 import sys
 from datetime import datetime
 from workflow import Workflow, ICON_WARNING, ICON_ERROR
@@ -122,7 +123,6 @@ def remove_duplicates(list1):  # remove duplicates from list
   return newList
 
 def main(wf):
-  import requests
 
   log.debug("Today is %s" % TODAY)
 
@@ -353,7 +353,7 @@ def main(wf):
   return 0
 
 if (__name__ == "__main__"):
-  wf = Workflow(libraries=['./lib'])
+  wf = Workflow()
 
   if (len(wf.args)):
     query = wf.args[0]
