@@ -127,6 +127,8 @@ def main(wf):
     arg = query[len(command) + 1:]
     argList = query.split(" ")[1:]
 
+    log.debug("argList: %s" % argList)
+
     if (argList == []): argList.append("")  # fix some cases where user may not have finished typing
 
     if (command == "!get_tabs"):
@@ -172,7 +174,8 @@ def main(wf):
     
     elif (command == "!get_announcements"):
       search = "".join(argList[1:])
-      announcements = get_object(objectType="announcements", maxAge=60, url="https://%s/api/v1/announcements?context_codes[]=course_%s" % (URL, argList[0]), arg1=argList[0])
+      log.debug("Getting announcements...")
+      announcements = get_object(objectType="announcements", maxAge=60, url="https://%s/api/v1/announcements?context_codes[]=course_%s&per_page=50" % (URL, argList[0]), arg1=argList[0])
 
       def key_for_announcement(announcement):
         return u'{} {}'.format(announcement['title'], remove_html(announcement['message']), min_score=64)
@@ -204,7 +207,7 @@ def main(wf):
     elif (command == "!get_modules"):
       search = "".join(argList[1:])
 
-      modules = get_object(objectType="modules", maxAge=60, url="https://%s/api/v1/courses/%s/modules" % (URL, argList[0]), arg1=argList[0])
+      modules = get_object(objectType="modules", maxAge=60, url="https://%s/api/v1/courses/%s/modules?per_page=100" % (URL, argList[0]), arg1=argList[0])
 
       def key_for_module(module):
         return u'{}'.format(module['name'], min_score=64)
@@ -216,7 +219,7 @@ def main(wf):
     elif (command == "!get_module_items"):
       search = "".join(argList[2:])
 
-      items = get_object(objectType="items", maxAge=60, url="https://%s/api/v1/courses/%s/modules/%s/items" % (URL, argList[0], argList[1]), arg1=argList[0])
+      items = get_object(objectType="items", maxAge=60, url="https://%s/api/v1/courses/%s/modules/%s/items?per_page=100" % (URL, argList[0], argList[1]), arg1=argList[1])
 
       def key_for_item(item):
         return u'{}'.format(item['title'], min_score=64)
