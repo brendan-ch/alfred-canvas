@@ -250,14 +250,11 @@ def main(wf):
     elif (command == "!get_sections"):
       sections = get_sections(arg)
       for section in sections: wf.add_item(section[u'name'])
-
+ 
     elif (command == "!get_assignments"):
       search = "".join(argList[1:])
-      assignments = wf.cached_data("%s-assignments" % argList[0], max_age=60)
 
-      if (not assignments):
-        assignments = get_assignments(argList[0])
-        wf.cache_data("%s-assignments" % argList[0], assignments)
+      assignments = get_object("assignments", 60, "https://%s/api/v1/courses/%s/assignments?order_by=due_at&include[]=submission&per_page=500" % (URL, argList[0]), argList[0])
 
       def key_for_assignment(assignments):
         return u'{}'.format(assignments[u'name'], min_score=64)
