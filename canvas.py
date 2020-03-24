@@ -1,7 +1,9 @@
 import requests
 import sys
-import datetime
+from datetime import datetime
 from workflow import Workflow, ICON_WARNING, ICON_ERROR
+
+TODAY = datetime.today().strftime("%Y-%m-%d")
 
 def get_object(objectType, maxAge, url, arg1):  # one function for all object types
   object1 = wf.cached_data("%s-%s" % (arg1, objectType), max_age=maxAge)  # objectType and arg1 only determine cache location; no effect on URL
@@ -122,6 +124,8 @@ def remove_duplicates(list1):  # remove duplicates from list
 
 def main(wf):
 
+  log.debug("Today is %s" % TODAY)
+
   if (len(query) and query[0] == "!"):
     command = query.split(" ")[0]
     arg = query[len(command) + 1:]
@@ -174,8 +178,7 @@ def main(wf):
     
     elif (command == "!get_announcements"):
       search = "".join(argList[1:])
-      log.debug("Getting announcements...")
-      announcements = get_object(objectType="announcements", maxAge=60, url="https://%s/api/v1/announcements?context_codes[]=course_%s&per_page=50" % (URL, argList[0]), arg1=argList[0])
+      announcements = get_object(objectType="announcements", maxAge=60, url="https://%s/api/v1/announcements?context_codes[]=course_%s&per_page=50&start_date=2000-01-01&end_date=%s" % (URL, argList[0], TODAY), arg1=argList[0])
 
       def key_for_announcement(announcement):
         return u'{} {}'.format(announcement['title'], remove_html(announcement['message']), min_score=64)
@@ -283,7 +286,7 @@ def main(wf):
 
         if (submission["workflow_state"] == "unsubmitted"):
           submissionText = "Due at: %s   Locks at: %s" % (str(assignment["due_at"]), str(assignment["lock_at"]))
-        elif (submission["workflow_state"] == "submitted"):
+        elif (submission["workflow_state"] == "submitted" or submission["workflow_state"] == "graded"):
           submissionText = "Submitted at: %s" % submission["submitted_at"]
           submissionIcon = "icons/submitted.png"
 
