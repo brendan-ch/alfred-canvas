@@ -138,7 +138,7 @@ def main(wf):
     if (command == "!get_tabs"):
       search = "".join(argList[1:])
 
-      tabs = get_object(objectType="tabs", maxAge=1200, url="https://%s/api/v1/courses/%s/tab&per_page=500" % (URL, argList[0]), arg1=argList[0])
+      tabs = get_object(objectType="tabs", maxAge=1200, url="https://%s/api/v1/courses/%s/tabs?per_page=500" % (URL, argList[0]), arg1=argList[0])
 
       def key_for_tab(tab):
         return u'{}'.format(tab['label'].replace(u'\xa0', u' '), min_score=64)
