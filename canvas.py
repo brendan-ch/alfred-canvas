@@ -124,7 +124,7 @@ def remove_duplicates(list1):  # remove duplicates from list
 
 def main(wf):
 
-  log.debug("Today is %s" % TODAY)
+  log.debug("Today is %s" % TODAY)  # date needed for some stuff
 
   if (len(query) and query[0] == "!"):
     command = query.split(" ")[0]
@@ -139,27 +139,37 @@ def main(wf):
       search = "".join(argList[1:])
 
       tabs = get_object(objectType="tabs", maxAge=1200, url="https://%s/api/v1/courses/%s/tabs" % (URL, argList[0]), arg1=argList[0])
+      log.debug("Tabs: %s" % tabs)
 
-      def key_for_tab(tab):
-        return u'{}'.format(tab['label'].replace(u'\xa0', u' '), min_score=64)
+      if (isinstance(tabs, list)):
 
-      tabs = wf.filter(search, tabs, key_for_tab)
+        def key_for_tab(tab):
+          return u'{}'.format(tab['label'].replace(u'\xa0', u' '), min_score=64)
 
-      for tab in tabs: 
-        if (tab[u'id'] == "home"): wf.add_item(title=tab[u'label'], subtitle="Select this action to open the homepage in your browser.", valid=True, arg="!open_url https://%s%s" % (URL, tab[u'html_url']), icon="icons/link.png")
-        elif (tab[u'id'] == "modules" or tab[u'id'] == "assignments" or tab[u'id'] == "announcements" or tab[u'id'] == "files"): wf.add_item(title=tab[u'label'], valid=True, arg="!get_%s %s " % (tab[u'id'].lower(), argList[0]), icon="icons/%s.png" % tab[u'id'].lower())
+        tabs = wf.filter(search, tabs, key_for_tab)
+
+        for tab in tabs: 
+          if (tab[u'id'] == "home"): wf.add_item(title=tab[u'label'], subtitle="Select this action to open the homepage in your browser.", valid=True, arg="!open_url https://%s%s" % (URL, tab[u'html_url']), icon="icons/link.png")
+          elif (tab[u'id'] == "modules" or tab[u'id'] == "assignments" or tab[u'id'] == "announcements" or tab[u'id'] == "files"): wf.add_item(title=tab[u'label'], valid=True, arg="!get_%s %s " % (tab[u'id'].lower(), argList[0]), icon="icons/%s.png" % tab[u'id'].lower())
+
+      else:
+        wf.add_item(title="Invalid course ID.", subtitle="Please try a different course ID.", icon=ICON_ERROR)
 
     elif (command == "!get_files"):
       search = "".join(argList[1:])
 
       files = get_object(objectType="files", maxAge=60, url="https://%s/api/v1/courses/%s/files?per_page=1000" % (URL, argList[0]), arg1=argList[0])
+      log.debug("Files: %s" % files)
 
-      def key_for_file(file1):
-        return u'{} {}'.format(file1['display_name'].replace(u'\xa0', u' '), file1['filename'].replace(u'\xa0', u' '), min_score=64)
+      if (isinstance(files, list)):
+        def key_for_file(file1):
+          return u'{} {}'.format(file1['display_name'].replace(u'\xa0', u' '), file1['filename'].replace(u'\xa0', u' '), min_score=64)
 
-      files = wf.filter(search, files, key_for_file)
+        files = wf.filter(search, files, key_for_file)
 
-      for file1 in files: wf.add_item(title=file1['display_name'].replace(u'\xa0', u' '), subtitle=file1['url'], valid=True, arg="!open_url %s" % file1[u'url'], icon="icons/assignment.png")
+        for file1 in files: wf.add_item(title=file1['display_name'].replace(u'\xa0', u' '), subtitle=file1['url'], valid=True, arg="!open_url %s" % file1[u'url'], icon="icons/assignment.png")
+      else:
+        wf.add_item(title="Invalid course ID.", subtitle="Please try a different course ID.", icon=ICON_ERROR)
 
     elif (command == "!get_page"):
       page = get_object(objectType="page", maxAge=120, url="https://%s/api/v1/courses/%s/pages/%s" % (URL, argList[0], argList[1]), arg1=argList[1])
@@ -179,62 +189,89 @@ def main(wf):
     elif (command == "!get_announcements"):
       search = "".join(argList[1:])
       announcements = get_object(objectType="announcements", maxAge=60, url="https://%s/api/v1/announcements?context_codes[]=course_%s&per_page=1000&start_date=2000-01-01&end_date=%s" % (URL, argList[0], TODAY), arg1=argList[0])
+      log.debug("Announcements: %s" % announcements)
 
-      def key_for_announcement(announcement):
-        return u'{} {}'.format(announcement['title'], remove_html(announcement['message']), min_score=64)
+      if (isinstance(announcements, list)):
 
-      announcements = wf.filter(search, announcements, key_for_announcement)
+        def key_for_announcement(announcement):
+          return u'{} {}'.format(announcement['title'], remove_html(announcement['message']), min_score=64)
 
-      if (announcements):
-        for announcement in announcements: wf.add_item(title=announcement[u'title'], subtitle="Posted at: %s" % announcement[u'posted_at'], valid=True, arg="!get_announcement %s %s" % (argList[0], announcement[u'id']), icon="icons/announcements.png")
+        announcements = wf.filter(search, announcements, key_for_announcement)
+
+        if (announcements):
+          for announcement in announcements: wf.add_item(title=announcement[u'title'], subtitle="Posted at: %s" % announcement[u'posted_at'], valid=True, arg="!get_announcement %s %s" % (argList[0], announcement[u'id']), icon="icons/announcements.png")
+        else:
+          wf.add_item(title="No announcements match your search", icon=ICON_WARNING)
+        
       else:
-        wf.add_item(title="No announcements match your search", icon=ICON_WARNING)
+        wf.add_item(title="Invalid course ID.", subtitle="Please try a different course ID.", icon=ICON_ERROR)
 
     elif (command == "!get_announcement"):
       announcements = get_object(objectType="announcements", maxAge=60, url="https://%s/api/v1/announcements?context_codes[]=course_%s" % (URL, argList[0]), arg1=argList[0])
+      log.debug("Announcements: %s" % announcements)
 
-      announcement = {}
-      for item in announcements:
-        if (str(item[u'id']) == str(argList[1])): announcement = item
+      if (isinstance(announcements, list)):
 
-      links = remove_duplicates(get_links(announcement[u'message']))
+        announcement = {}
+        for item in announcements:
+          if (str(item[u'id']) == str(argList[1])): announcement = item
 
-      if (announcement != {}):
-        wf.add_item(title="Show full message", subtitle=remove_html(announcement[u'message']), valid=True, arg="Message: \n\n%s" % remove_html(announcement[u'message']), icon="icons/info.png")
+        if (announcement != {}):
 
-        for item in links:
-          wf.add_item(title="Open link", subtitle=item, valid=True, arg="!open_url %s" % item, icon="icons/link.png")
+          links = remove_duplicates(get_links(announcement[u'message']))
 
-        wf.add_item(title="Open announcement page", subtitle="https://%s/courses/%s/announcements/%s" % (URL, argList[0], argList[1]), valid=True, arg="!open_url https://%s/courses/%s/announcements/%s" % (URL, argList[0], argList[1]), icon="icons/link.png")
+          wf.add_item(title="Show full message", subtitle=remove_html(announcement[u'message']), valid=True, arg="Message: \n\n%s" % remove_html(announcement[u'message']), icon="icons/info.png")
+
+          for item in links:
+            wf.add_item(title="Open link", subtitle=item, valid=True, arg="!open_url %s" % item, icon="icons/link.png")
+
+          wf.add_item(title="Open announcement page", subtitle="https://%s/courses/%s/announcements/%s" % (URL, argList[0], argList[1]), valid=True, arg="!open_url https://%s/courses/%s/announcements/%s" % (URL, argList[0], argList[1]), icon="icons/link.png")
+
+        else:
+          wf.add_item("Invalid announcement ID.", subtitle="Please try a different announcement ID.", icon=ICON_ERROR)
+      
+      else:
+        wf.add_item(title="Invalid course ID.", subtitle="Please try a different course ID.", icon=ICON_ERROR)
     
     elif (command == "!get_modules"):
       search = "".join(argList[1:])
 
       modules = get_object(objectType="modules", maxAge=60, url="https://%s/api/v1/courses/%s/modules?per_page=1000" % (URL, argList[0]), arg1=argList[0])
+      log.debug("Modules: %s" % modules)
 
-      def key_for_module(module):
-        return u'{}'.format(module['name'], min_score=64)
+      if (isinstance(modules, list)):
 
-      modules = wf.filter(search, modules, key_for_module)
+        def key_for_module(module):
+          return u'{}'.format(module['name'], min_score=64)
 
-      for module in modules: wf.add_item(title=module[u'name'], valid=True, arg="!get_module_items %s %s " % (str(argList[0]), str(module[u'id'])), icon="icons/modules.png")
+        modules = wf.filter(search, modules, key_for_module)
+
+        for module in modules: wf.add_item(title=module[u'name'], valid=True, arg="!get_module_items %s %s " % (str(argList[0]), str(module[u'id'])), icon="icons/modules.png")
+      else:
+        wf.add_item(title="Invalid course ID.", subtitle="Please try a different course ID.", icon=ICON_ERROR)
 
     elif (command == "!get_module_items"):
       search = "".join(argList[2:])
 
       items = get_object(objectType="items", maxAge=60, url="https://%s/api/v1/courses/%s/modules/%s/items?per_page=500" % (URL, argList[0], argList[1]), arg1=argList[1])
+      log.debug("Items: %s" % items)
 
-      def key_for_item(item):
-        return u'{}'.format(item['title'], min_score=64)
+      if (isinstance(items, list)):
 
-      items = wf.filter(search, items, key_for_item)
+        def key_for_item(item):
+          return u'{}'.format(item['title'], min_score=64)
 
-      for item in items: 
-        if (item[u'type'] == "ExternalUrl" or item[u'type'] == "ExternalTool"): wf.add_item(title=item[u'title'], subtitle=str(item[u'external_url']), valid=True, arg="!open_url %s" % item[u'external_url'], icon="icons/link.png")
-        elif (item[u'type'] == "File"): wf.add_item(title=item[u'title'], subtitle=str(item[u'type']), valid=True, arg="!open_url %s" % get_file_from_id(argList[0], item[u'content_id'])[u'url'], icon="icons/files.png")
-        elif (item[u'type'] == "Assignment"): wf.add_item(title=item[u'title'], subtitle=str(item[u'type']), valid=True, arg="!get_%s %s %s" % (item[u'type'].lower(), argList[0], item[u'content_id']), icon="icons/%s.png" % (item[u'type'].lower()))
-        elif (item[u'type'] == "Page"): wf.add_item(title=item[u'title'], subtitle=str(item[u'type']), valid=True, arg="!get_%s %s %s " % (item[u'type'].lower(), argList[0], item[u'page_url']), icon="icons/%s.png" % (item[u'type'].lower()))
-        else: wf.add_item(title=item[u'title'], subtitle=str(item[u'type']), valid=True, arg="!open_url %s" % item[u'html_url'], icon="icons/%s.png" % item[u'type'].lower())
+        items = wf.filter(search, items, key_for_item)
+
+        for item in items: 
+          if (item[u'type'] == "ExternalUrl" or item[u'type'] == "ExternalTool"): wf.add_item(title=item[u'title'], subtitle=str(item[u'external_url']), valid=True, arg="!open_url %s" % item[u'external_url'], icon="icons/link.png")
+          elif (item[u'type'] == "File"): wf.add_item(title=item[u'title'], subtitle=str(item[u'type']), valid=True, arg="!open_url %s" % get_file_from_id(argList[0], item[u'content_id'])[u'url'], icon="icons/files.png")
+          elif (item[u'type'] == "Assignment"): wf.add_item(title=item[u'title'], subtitle=str(item[u'type']), valid=True, arg="!get_%s %s %s" % (item[u'type'].lower(), argList[0], item[u'content_id']), icon="icons/%s.png" % (item[u'type'].lower()))
+          elif (item[u'type'] == "Page"): wf.add_item(title=item[u'title'], subtitle=str(item[u'type']), valid=True, arg="!get_%s %s %s " % (item[u'type'].lower(), argList[0], item[u'page_url']), icon="icons/%s.png" % (item[u'type'].lower()))
+          else: wf.add_item(title=item[u'title'], subtitle=str(item[u'type']), valid=True, arg="!open_url %s" % item[u'html_url'], icon="icons/%s.png" % item[u'type'].lower())
+
+      else:
+        wf.add_item(title="Invalid course or module ID.", subtitle="Please try a different course or module ID.", icon=ICON_ERROR)
 
     elif (command == "!get_module_item"):  # obsolete
       items = wf.cached_data("%s-items" % argList[0], max_age=60)
@@ -259,12 +296,17 @@ def main(wf):
 
       assignments = get_object("assignments", 60, "https://%s/api/v1/courses/%s/assignments?order_by=due_at&include[]=submission&per_page=1000" % (URL, argList[0]), argList[0])
 
-      def key_for_assignment(assignments):
-        return u'{}'.format(assignments[u'name'], min_score=64)
+      log.debug("Assignments: %s" % assignments)
 
-      assignments = wf.filter(search, assignments, key_for_assignment)
-      
-      for assignment in assignments: wf.add_item(title=assignment[u'name'], valid=True, arg="!get_assignment %s %s" % (argList[0], str(assignment[u'id'])), icon="icons/assignments.png")
+      if (isinstance(assignments, list)):
+        def key_for_assignment(assignments):
+          return u'{}'.format(assignments[u'name'], min_score=64)
+
+        assignments = wf.filter(search, assignments, key_for_assignment)
+        
+        for assignment in assignments: wf.add_item(title=assignment[u'name'], valid=True, arg="!get_assignment %s %s" % (argList[0], str(assignment[u'id'])), icon="icons/assignments.png")
+      else:
+        wf.add_item(title="Invalid course ID.", subtitle="Please try again using a different course ID.", icon=ICON_ERROR)
 
 
     elif (command == "!get_assignment"):
@@ -301,7 +343,7 @@ def main(wf):
         wf.add_item(title="Open assignment page", subtitle=assignment[u'html_url'], valid=True, arg="!open_url %s" % assignment[u'html_url'], icon="icons/link.png")
 
       else:
-        wf.add_item(title="Invalid assignment or course ID.", subtitle="Please try again using a different assignment or course ID.")
+        wf.add_item(title="Invalid assignment or course ID.", subtitle="Please try again using a different assignment or course ID.", icon=ICON_ERROR)
 
     elif (command == "!set_url"):
       wf.add_item(title="Set Canvas URL to https://%s" % argList[0], subtitle="Current URL: https://%s" % str(URL), valid=True, arg="!url_set %s" % argList[0], icon="icons/link.png")
