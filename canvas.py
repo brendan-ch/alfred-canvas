@@ -261,7 +261,7 @@ def main(wf):
 
       assignments = wf.filter(search, assignments, key_for_assignment)
       
-      for assignment in assignments: wf.add_item(title=assignment[u'name'], subtitle=str(assignment[u'id']), valid=True, arg="!get_assignment %s %s" % (argList[0], str(assignment[u'id'])), icon="icons/assignments.png")
+      for assignment in assignments: wf.add_item(title=assignment[u'name'], valid=True, arg="!get_assignment %s %s" % (argList[0], str(assignment[u'id'])), icon="icons/assignments.png")
 
 
     elif (command == "!get_assignment"):
