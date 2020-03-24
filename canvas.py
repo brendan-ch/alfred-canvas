@@ -138,7 +138,7 @@ def main(wf):
     if (command == "!get_tabs"):
       search = "".join(argList[1:])
 
-      tabs = get_object(objectType="tabs", maxAge=1200, url="https://%s/api/v1/courses/%s/tabs" % (URL, argList[0]), arg1=argList[0])
+      tabs = get_object(objectType="tabs", maxAge=1200, url="https://%s/api/v1/courses/%s/tab&per_page=500" % (URL, argList[0]), arg1=argList[0])
 
       def key_for_tab(tab):
         return u'{}'.format(tab['label'].replace(u'\xa0', u' '), min_score=64)
@@ -152,7 +152,7 @@ def main(wf):
     elif (command == "!get_files"):
       search = "".join(argList[1:])
 
-      files = get_object(objectType="files", maxAge=60, url="https://%s/api/v1/courses/%s/files" % (URL, argList[0]), arg1=argList[0])
+      files = get_object(objectType="files", maxAge=60, url="https://%s/api/v1/courses/%s/files&per_page=500" % (URL, argList[0]), arg1=argList[0])
 
       def key_for_file(file1):
         return u'{} {}'.format(file1['display_name'].replace(u'\xa0', u' '), file1['filename'].replace(u'\xa0', u' '), min_score=64)
@@ -210,7 +210,7 @@ def main(wf):
     elif (command == "!get_modules"):
       search = "".join(argList[1:])
 
-      modules = get_object(objectType="modules", maxAge=60, url="https://%s/api/v1/courses/%s/modules?per_page=100" % (URL, argList[0]), arg1=argList[0])
+      modules = get_object(objectType="modules", maxAge=60, url="https://%s/api/v1/courses/%s/modules?per_page=500" % (URL, argList[0]), arg1=argList[0])
 
       def key_for_module(module):
         return u'{}'.format(module['name'], min_score=64)
@@ -222,7 +222,7 @@ def main(wf):
     elif (command == "!get_module_items"):
       search = "".join(argList[2:])
 
-      items = get_object(objectType="items", maxAge=60, url="https://%s/api/v1/courses/%s/modules/%s/items?per_page=100" % (URL, argList[0], argList[1]), arg1=argList[1])
+      items = get_object(objectType="items", maxAge=60, url="https://%s/api/v1/courses/%s/modules/%s/items?per_page=500" % (URL, argList[0], argList[1]), arg1=argList[1])
 
       def key_for_item(item):
         return u'{}'.format(item['title'], min_score=64)
