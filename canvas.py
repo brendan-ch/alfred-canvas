@@ -373,13 +373,21 @@ def main(wf):
 
         paths = wf.filter(search, paths)
 
-        wf.add_item(title="Use this folder")
+        wf.add_item(title="Use this folder", subtitle="Begin the file download", valid=True, arg="!file_download %s %s" % (argList[0], argList[1]))
 
         for item in paths:
           if (item[0] != "."): wf.add_item(title=item, valid=True, arg="!browse_folders %s %s/%s " % (argList[0], argList[1], item))
 
       except:
         wf.add_item(title="Folder path doesn't exist.", subtitle="Please try using a different path.", icon=ICON_ERROR)
+
+    elif (command == "!file_download"):
+      download = requests.get(argList[0])
+
+      with open("%s/file.pdf" % argList[1], "wb") as f:
+        f.write(download.content)
+
+      print("File download complete.")
 
     elif (command == "!set_url"):
       wf.add_item(title="Set Canvas URL to https://%s" % argList[0], subtitle="Current URL: https://%s" % str(URL), valid=True, arg="!url_set %s" % argList[0], icon="icons/link.png")
