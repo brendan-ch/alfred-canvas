@@ -168,7 +168,17 @@ def main(wf):
 
         files = wf.filter(search, files, key_for_file)
 
-        for file1 in files: wf.add_item(title=file1['display_name'].replace(u'\xa0', u' '), subtitle=file1['url'], valid=True, arg="!download_file %s " % file1[u'url'], icon="icons/assignment.png")
+        log.debug("Filtered files: %s" % files)
+
+        for file1 in files:
+          fileType = ""
+
+          for i in range(len(file1['filename']) - 1, -1, -1):  # gets file extension (e.g. docx, pdf, mp4, etc.)
+            if (file1['filename'][i] == "."):
+              fileType = file1['filename'][i + 1:len(file1['filename'])]
+              break
+
+          wf.add_item(title=file1['display_name'].replace(u'\xa0', u' '), subtitle=fileType, valid=True, arg="!download_file %s %s " % (file1[u'url'], fileType), icon="icons/assignment.png")
       else:
         wf.add_item(title="Invalid course ID.", subtitle="Please try a different course ID.", icon=ICON_ERROR)
 
@@ -348,16 +358,17 @@ def main(wf):
 
     elif (command == "!download_file"):  # display recent paths
       # argList[0]: the url
+      # argList[1]: file type
 
       recent_paths = wf.stored_data("recent_paths")
       if (not recent_paths):
         recent_paths = []
         wf.store_data("recent_paths", recent_paths)
 
-      search = "".join(argList[1:])
+      search = "".join(argList[2:])
       home = os.path.expanduser("~")
 
-      wf.add_item(title="Open file browser", subtitle="Browse folders to save the file in", valid=True, arg="!browse_folders %s %s " % (argList[0], home))  # must pass url as argument
+      wf.add_item(title="Open file browser", subtitle="Browse folders to save the file in", valid=True, arg="!browse_folders %s %s %s " % (argList[0], argList[1], home))  # must pass url as argument
 
       for item in recent_paths:
         wf.add_item(title=item)
@@ -366,29 +377,29 @@ def main(wf):
       # argList[0]: the url
       # argList[1]: the path
 
-      search = "".join(argList[2:])
+      search = "".join(argList[3:])
 
       try:
-        paths = sorted(next(os.walk(argList[1]))[1])
+        paths = sorted(next(os.walk(argList[2]))[1])
 
         paths = wf.filter(search, paths)
 
-        wf.add_item(title="Use this folder", subtitle="Download the file in this folder", valid=True, arg="!name_file %s %s " % (argList[0], argList[1]))
+        wf.add_item(title="Use this folder", subtitle="Download the file in this folder", valid=True, arg="!name_file %s %s %s " % (argList[0], argList[1], argList[2]))
 
         for item in paths:
-          if (item[0] != "."): wf.add_item(title=item, valid=True, arg="!browse_folders %s %s/%s " % (argList[0], argList[1], item))
+          if (item[0] != "."): wf.add_item(title=item, valid=True, arg="!browse_folders %s %s %s/%s " % (argList[0], argList[1], argList[2], item))
 
       except:
         wf.add_item(title="Folder path doesn't exist.", subtitle="Please try using a different path.", icon=ICON_ERROR)
 
     elif (command == "!name_file"):
-      fileName = "".join(argList[2:])
+      fileName = " ".join(argList[3:])
 
-      wf.add_item(title="Name the file: %s" % fileName, subtitle="Press ENTER to begin file download", valid=True, arg="!file_download %s %s %s" % (argList[0], argList[1], fileName))
+      wf.add_item(title="Name the file: %s.%s" % (fileName, argList[1]), subtitle="Press ENTER to begin file download", valid=True, arg="!file_download %s %s %s.%s" % (argList[0], argList[2], fileName, argList[1]))
 
     elif (command == "!file_download"):
       download = requests.get(argList[0])
-      fileName = "".join(argList[2:])
+      fileName = " ".join(argList[2:])
 
       with open("%s/%s" % (argList[1], fileName), "wb") as f:
         f.write(download.content)
