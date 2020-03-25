@@ -276,7 +276,15 @@ def main(wf):
 
         for item in items: 
           if (item[u'type'] == "ExternalUrl" or item[u'type'] == "ExternalTool"): wf.add_item(title=item[u'title'], subtitle=str(item[u'external_url']), valid=True, arg="!open_url %s" % item[u'external_url'], icon="icons/link.png")
-          elif (item[u'type'] == "File"): wf.add_item(title=item[u'title'], subtitle=str(item[u'type']), valid=True, arg="!open_url %s" % get_file_from_id(argList[0], item[u'content_id'])[u'url'], icon="icons/files.png")
+          elif (item[u'type'] == "File"): 
+            fileType = ""
+            file1 = get_file_from_id(argList[0], item[u'content_id'])
+            for i in range(len(file1['filename']) - 1, -1, -1):  # gets file extension (e.g. docx, pdf, mp4, etc.)
+              if (file1['filename'][i] == "."):
+                fileType = file1['filename'][i + 1:len(file1['filename'])]
+                break
+
+            wf.add_item(title=item[u'title'], subtitle=str(item[u'type']), valid=True, arg="!download_file %s %s " % (file1[u'url'], fileType), icon="icons/files.png")
           elif (item[u'type'] == "Assignment"): wf.add_item(title=item[u'title'], subtitle=str(item[u'type']), valid=True, arg="!get_%s %s %s" % (item[u'type'].lower(), argList[0], item[u'content_id']), icon="icons/%s.png" % (item[u'type'].lower()))
           elif (item[u'type'] == "Page"): wf.add_item(title=item[u'title'], subtitle=str(item[u'type']), valid=True, arg="!get_%s %s %s " % (item[u'type'].lower(), argList[0], item[u'page_url']), icon="icons/%s.png" % (item[u'type'].lower()))
           else: wf.add_item(title=item[u'title'], subtitle=str(item[u'type']), valid=True, arg="!open_url %s" % item[u'html_url'], icon="icons/%s.png" % item[u'type'].lower())
