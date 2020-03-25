@@ -409,9 +409,9 @@ def main(wf):
                       {u"name": "!clear_cache",
                        u"description": u"Clear all cached data. Useful when debugging."},
                       {u"name": "!save_api_key",
-                       u"description": u"Save the access key generated in Canvas."},
-                      {u"name": u"!set_download_paths",
-                       u"description": u"Set default paths for file downloads"}]
+                       u"description": u"Save the access key generated in Canvas."}]
+                      # {u"name": u"!set_download_paths",
+                      #  u"description": u"Set default paths for file downloads"}]
 
       def key_for_command(command):
         return "{}".format(command[u'name'], min_score=64)
