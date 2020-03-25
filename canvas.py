@@ -1,5 +1,6 @@
 from lib import requests
 import sys
+import os
 from datetime import datetime
 from workflow import Workflow, ICON_WARNING, ICON_ERROR
 
@@ -366,14 +367,29 @@ def main(wf):
     elif (command == "!set_download_paths"):
       paths = wf.stored_data('paths')
 
-      wf.add_item(title="Add new path", valid=True, arg="!add_path ")
+      home = os.path.expanduser("~")
+      log.debug("Home folder: %s" % home)
+
+      wf.add_item(title="Add new path", valid=True, arg="!add_path %s" % home)
 
       if (paths):
         for item in paths:
           wf.add_item(item)
 
     elif (command == "!add_path"):
-      wf.add_item(title="Enter new path: %s" % argList[0], valid=True, arg="!path_add %s" % argList[0])
+      # wf.add_item(title="Enter new path: %s" % argList[0], valid=True, arg="!path_add %s" % argList[0])
+
+      # paths = os.listdir(argList[0])
+      try:
+        paths = sorted(next(os.walk(argList[0]))[1])
+
+        wf.add_item(title="Use this folder")
+
+        for item in paths:
+          if (item[0] != "."): wf.add_item(title=item)
+
+      except:
+        wf.add_item(title="Folder path doesn't exist.", subtitle="Please try using a different path.", icon=ICON_ERROR)
 
     elif (command == "!path_add"):
       paths = wf.stored_data('paths')
