@@ -373,7 +373,7 @@ def main(wf):
 
         paths = wf.filter(search, paths)
 
-        wf.add_item(title="Use this folder", subtitle="Begin the file download", valid=True, arg="!file_download %s %s" % (argList[0], argList[1]))
+        wf.add_item(title="Use this folder", subtitle="Download the file in this folder", valid=True, arg="!name_file %s %s " % (argList[0], argList[1]))
 
         for item in paths:
           if (item[0] != "."): wf.add_item(title=item, valid=True, arg="!browse_folders %s %s/%s " % (argList[0], argList[1], item))
@@ -381,10 +381,16 @@ def main(wf):
       except:
         wf.add_item(title="Folder path doesn't exist.", subtitle="Please try using a different path.", icon=ICON_ERROR)
 
+    elif (command == "!name_file"):
+      fileName = "".join(argList[2:])
+
+      wf.add_item(title="Name the file: %s" % fileName, subtitle="Press ENTER to begin file download", valid=True, arg="!file_download %s %s %s" % (argList[0], argList[1], fileName))
+
     elif (command == "!file_download"):
       download = requests.get(argList[0])
+      fileName = "".join(argList[2:])
 
-      with open("%s/file.pdf" % argList[1], "wb") as f:
+      with open("%s/%s" % (argList[1], fileName), "wb") as f:
         f.write(download.content)
 
       print("File download complete.")
