@@ -137,7 +137,7 @@ def main(wf):
     if (argList == []): argList.append("")  # fix some cases where user may not have finished typing
 
     if (command == "!get_tabs"):
-      search = "".join(argList[1:])
+      search = " ".join(argList[1:])
 
       tabs = get_object(objectType="tabs", maxAge=1200, url="https://%s/api/v1/courses/%s/tabs" % (URL, argList[0]), arg1=argList[0])
       log.debug("Tabs: %s" % tabs)
@@ -157,7 +157,7 @@ def main(wf):
         wf.add_item(title="Invalid course ID.", subtitle="Please try a different course ID.", icon=ICON_ERROR)
 
     elif (command == "!get_files"):
-      search = "".join(argList[1:])
+      search = " ".join(argList[1:])
 
       files = get_object(objectType="files", maxAge=60, url="https://%s/api/v1/courses/%s/files?per_page=1000" % (URL, argList[0]), arg1=argList[0])
       log.debug("Files: %s" % files)
@@ -198,7 +198,7 @@ def main(wf):
         wf.add_item(title="Open page", subtitle="https://%s/courses/%s/pages/%s" % (URL, argList[0], page[u'url']), valid=True, arg="!open_url https://%s/courses/%s/pages/%s" % (URL, argList[0], page[u'url']), icon="icons/link.png")
     
     elif (command == "!get_announcements"):
-      search = "".join(argList[1:])
+      search = " ".join(argList[1:])
       announcements = get_object(objectType="announcements", maxAge=60, url="https://%s/api/v1/announcements?context_codes[]=course_%s&per_page=1000&start_date=2000-01-01&end_date=%s" % (URL, argList[0], TODAY), arg1=argList[0])
       log.debug("Announcements: %s" % announcements)
 
@@ -245,7 +245,7 @@ def main(wf):
         wf.add_item(title="Invalid course ID.", subtitle="Please try a different course ID.", icon=ICON_ERROR)
     
     elif (command == "!get_modules"):
-      search = "".join(argList[1:])
+      search = " ".join(argList[1:])
 
       modules = get_object(objectType="modules", maxAge=60, url="https://%s/api/v1/courses/%s/modules?per_page=1000" % (URL, argList[0]), arg1=argList[0])
       log.debug("Modules: %s" % modules)
@@ -262,7 +262,7 @@ def main(wf):
         wf.add_item(title="Invalid course ID.", subtitle="Please try a different course ID.", icon=ICON_ERROR)
 
     elif (command == "!get_module_items"):
-      search = "".join(argList[2:])
+      search = " ".join(argList[2:])
 
       items = get_object(objectType="items", maxAge=60, url="https://%s/api/v1/courses/%s/modules/%s/items?per_page=500" % (URL, argList[0], argList[1]), arg1=argList[1])
       log.debug("Items: %s" % items)
@@ -303,7 +303,7 @@ def main(wf):
       for section in sections: wf.add_item(section[u'name'])
  
     elif (command == "!get_assignments"):
-      search = "".join(argList[1:])
+      search = " ".join(argList[1:])
 
       assignments = get_object("assignments", 60, "https://%s/api/v1/courses/%s/assignments?order_by=due_at&include[]=submission&per_page=1000" % (URL, argList[0]), argList[0])
 
@@ -377,7 +377,7 @@ def main(wf):
       # argList[0]: the url
       # argList[1]: the path
 
-      search = "".join(argList[3:])
+      search = " ".join(argList[3:])
 
       try:
         paths = sorted(next(os.walk(argList[2]))[1])
