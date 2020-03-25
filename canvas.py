@@ -168,7 +168,7 @@ def main(wf):
 
         files = wf.filter(search, files, key_for_file)
 
-        for file1 in files: wf.add_item(title=file1['display_name'].replace(u'\xa0', u' '), subtitle=file1['url'], valid=True, arg="!open_url %s" % file1[u'url'], icon="icons/assignment.png")
+        for file1 in files: wf.add_item(title=file1['display_name'].replace(u'\xa0', u' '), subtitle=file1['url'], valid=True, arg="!download_file %s " % file1[u'url'], icon="icons/assignment.png")
       else:
         wf.add_item(title="Invalid course ID.", subtitle="Please try a different course ID.", icon=ICON_ERROR)
 
@@ -345,6 +345,41 @@ def main(wf):
 
       else:
         wf.add_item(title="Invalid assignment or course ID.", subtitle="Please try again using a different assignment or course ID.", icon=ICON_ERROR)
+
+    elif (command == "!download_file"):  # display recent paths
+      # argList[0]: the url
+
+      recent_paths = wf.stored_data("recent_paths")
+      if (not recent_paths):
+        recent_paths = []
+        wf.store_data("recent_paths", recent_paths)
+
+      search = "".join(argList[1:])
+      home = os.path.expanduser("~")
+
+      wf.add_item(title="Open file browser", subtitle="Browse folders to save the file in", valid=True, arg="!browse_folders %s %s " % (argList[0], home))  # must pass url as argument
+
+      for item in recent_paths:
+        wf.add_item(title=item)
+
+    elif (command == "!browse_folders"):
+      # argList[0]: the url
+      # argList[1]: the path
+
+      search = "".join(argList[2:])
+
+      try:
+        paths = sorted(next(os.walk(argList[1]))[1])
+
+        paths = wf.filter(search, paths)
+
+        wf.add_item(title="Use this folder")
+
+        for item in paths:
+          if (item[0] != "."): wf.add_item(title=item, valid=True, arg="!browse_folders %s %s/%s " % (argList[0], argList[1], item))
+
+      except:
+        wf.add_item(title="Folder path doesn't exist.", subtitle="Please try using a different path.", icon=ICON_ERROR)
 
     elif (command == "!set_url"):
       wf.add_item(title="Set Canvas URL to https://%s" % argList[0], subtitle="Current URL: https://%s" % str(URL), valid=True, arg="!url_set %s" % argList[0], icon="icons/link.png")
