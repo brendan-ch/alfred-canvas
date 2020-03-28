@@ -449,6 +449,7 @@ def main(wf):
         f.write(download.content)
 
       log.debug("File download complete.")
+      notify.notify(title="Download complete", text='"%s" has finished downloading.' % filename)
 
     elif (command == "!set_url"):
       wf.add_item(title="Set Canvas URL to https://%s" % argList[0], subtitle="Current URL: https://%s" % str(URL), valid=True, arg="!url_set %s" % argList[0], icon="icons/link.png")
