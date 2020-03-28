@@ -86,6 +86,30 @@
 			</dict>
 			<dict>
 				<key>destinationuid</key>
+				<string>D8B8BE63-3DA2-40D2-8C8C-817E2302AE63</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>sourceoutputuid</key>
+				<string>E54C1EE4-5F90-434A-8296-CC4300AF9652</string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>D8B8BE63-3DA2-40D2-8C8C-817E2302AE63</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>sourceoutputuid</key>
+				<string>DE3CB968-91DB-481C-BAC5-BFB08C474806</string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
 				<string>AC546293-70A6-48A2-B8CC-BAB25393B1E5</string>
 				<key>modifiers</key>
 				<integer>0</integer>
@@ -240,6 +264,34 @@
 						<string>Clear cache</string>
 						<key>uid</key>
 						<string>26ADAF7E-2665-45F7-B256-21AF89CD7472</string>
+					</dict>
+					<dict>
+						<key>inputstring</key>
+						<string>{var:split1}</string>
+						<key>matchcasesensitive</key>
+						<false/>
+						<key>matchmode</key>
+						<integer>0</integer>
+						<key>matchstring</key>
+						<string>!path_add</string>
+						<key>outputlabel</key>
+						<string>Add download path</string>
+						<key>uid</key>
+						<string>E54C1EE4-5F90-434A-8296-CC4300AF9652</string>
+					</dict>
+					<dict>
+						<key>inputstring</key>
+						<string>{var:split1}</string>
+						<key>matchcasesensitive</key>
+						<false/>
+						<key>matchmode</key>
+						<integer>0</integer>
+						<key>matchstring</key>
+						<string>!file_download</string>
+						<key>outputlabel</key>
+						<string>Download file</string>
+						<key>uid</key>
+						<string>DE3CB968-91DB-481C-BAC5-BFB08C474806</string>
 					</dict>
 					<dict>
 						<key>inputstring</key>
@@ -495,9 +547,9 @@ Icons from https://icons8.com</string>
 			<key>colorindex</key>
 			<integer>3</integer>
 			<key>xpos</key>
-			<integer>405</integer>
+			<integer>410</integer>
 			<key>ypos</key>
-			<integer>215</integer>
+			<integer>200</integer>
 		</dict>
 		<key>760AA0F0-F5A3-4230-A8E7-593F2017D515</key>
 		<dict>
@@ -540,7 +592,7 @@ Icons from https://icons8.com</string>
 	<key>variablesdontexport</key>
 	<array/>
 	<key>version</key>
-	<string>1.0.0</string>
+	<string>1.0.1</string>
 	<key>webaddress</key>
 	<string>https://github.com/unnameduser95/alfred-canvas</string>
 </dict>
