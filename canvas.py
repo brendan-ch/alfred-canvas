@@ -394,7 +394,7 @@ def main(wf):
       wf.add_item(title="Open file browser", subtitle="Browse folders to save the file in", valid=True, arg="!browse_folders %s %s %s " % (argList[0], argList[1], home))  # must pass url as argument
 
       for i in range(-1, -len(recent_paths) - 1, -1):
-        wf.add_item(title=recent_paths[i], valid=True, arg="!file_download %s %s %s " % (argList[0], argList[1], recent_paths[i]))
+        wf.add_item(title=recent_paths[i], valid=True, arg="!file_download %s %s %s " % (argList[0], argList[1], recent_paths[i]), icon="icons/folder.png")
 
     elif (command == "!browse_folders"):
       # argList[0]: the url
