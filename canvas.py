@@ -160,7 +160,7 @@ def main(wf):
       search = " ".join(argList[1:])
 
       files = get_object(objectType="files", maxAge=60, url="https://%s/api/v1/courses/%s/files?per_page=1000" % (URL, argList[0]), arg1=argList[0])
-      log.debug("Files: %s" % files)
+      # log.debug("Files: %s" % files)
 
       if (isinstance(files, list)):
         def key_for_file(file1):
@@ -168,17 +168,23 @@ def main(wf):
 
         files = wf.filter(search, files, key_for_file)
 
-        log.debug("Filtered files: %s" % files)
+        # log.debug("Filtered files: %s" % files)
+
+        file_names = []
+        index = 0
 
         for file1 in files:
-          fileType = ""
 
-          for i in range(len(file1['filename']) - 1, -1, -1):  # gets file extension (e.g. docx, pdf, mp4, etc.)
-            if (file1['filename'][i] == "."):
-              fileType = file1['filename'][i + 1:len(file1['filename'])]
-              break
+          # for i in range(len(file1['filename']) - 1, -1, -1):  # gets file extension (e.g. docx, pdf, mp4, etc.)
+          #   if (file1['filename'][i] == "."):
+          #     fileType = file1['filename'][i + 1:len(file1['filename'])]
+          #     break
+          
+          file_names.append(file1['filename'])
+          wf.add_item(title=file1['display_name'].replace(u'\xa0', u' '), subtitle=file1['filename'].replace(u'\xa0', u' '), valid=True, arg="!download_file %s %s " % (file1[u'url'], str(index)), icon="icons/assignment.png")
+          index += 1
 
-          wf.add_item(title=file1['display_name'].replace(u'\xa0', u' '), subtitle=fileType, valid=True, arg="!download_file %s %s " % (file1[u'url'], fileType), icon="icons/assignment.png")
+        wf.cache_data("filenames", file_names)
       else:
         wf.add_item(title="Invalid course ID.", subtitle="Please try a different course ID.", icon=ICON_ERROR)
 
@@ -274,20 +280,29 @@ def main(wf):
 
         items = wf.filter(search, items, key_for_item)
 
+        filenames = []
+        index = 0
+
         for item in items: 
           if (item[u'type'] == "ExternalUrl" or item[u'type'] == "ExternalTool"): wf.add_item(title=item[u'title'], subtitle=str(item[u'external_url']), valid=True, arg="!open_url %s" % item[u'external_url'], icon="icons/link.png")
           elif (item[u'type'] == "File"): 
-            fileType = ""
-            file1 = get_file_from_id(argList[0], item[u'content_id'])
-            for i in range(len(file1['filename']) - 1, -1, -1):  # gets file extension (e.g. docx, pdf, mp4, etc.)
-              if (file1['filename'][i] == "."):
-                fileType = file1['filename'][i + 1:len(file1['filename'])]
-                break
 
-            wf.add_item(title=item[u'title'], subtitle=str(item[u'type']), valid=True, arg="!download_file %s %s " % (file1[u'url'], fileType), icon="icons/files.png")
+            # fileType = ""
+            file1 = get_file_from_id(argList[0], item[u'content_id'])
+            # for i in range(len(file1['filename']) - 1, -1, -1):  # gets file extension (e.g. docx, pdf, mp4, etc.)
+            #   if (file1['filename'][i] == "."):
+            #     fileType = file1['filename'][i + 1:len(file1['filename'])]
+            #     break
+
+            filenames.append(file1['filename'])
+
+            wf.add_item(title=item[u'title'], subtitle=str(item[u'type']), valid=True, arg="!download_file %s %s " % (file1[u'url'], str(index)), icon="icons/files.png")
+            index += 1
           elif (item[u'type'] == "Assignment"): wf.add_item(title=item[u'title'], subtitle=str(item[u'type']), valid=True, arg="!get_%s %s %s" % (item[u'type'].lower(), argList[0], item[u'content_id']), icon="icons/%s.png" % (item[u'type'].lower()))
           elif (item[u'type'] == "Page"): wf.add_item(title=item[u'title'], subtitle=str(item[u'type']), valid=True, arg="!get_%s %s %s " % (item[u'type'].lower(), argList[0], item[u'page_url']), icon="icons/%s.png" % (item[u'type'].lower()))
           else: wf.add_item(title=item[u'title'], subtitle=str(item[u'type']), valid=True, arg="!open_url %s" % item[u'html_url'], icon="icons/%s.png" % item[u'type'].lower())
+
+        wf.cache_data("filenames", filenames)
 
       else:
         wf.add_item(title="Invalid course or module ID.", subtitle="Please try a different course or module ID.", icon=ICON_ERROR)
@@ -366,7 +381,7 @@ def main(wf):
 
     elif (command == "!download_file"):  # display recent paths
       # argList[0]: the url
-      # argList[1]: file type
+      # argList[1]: filename index
 
       recent_paths = wf.stored_data("recent_paths")
       if (not recent_paths):
@@ -379,11 +394,12 @@ def main(wf):
       wf.add_item(title="Open file browser", subtitle="Browse folders to save the file in", valid=True, arg="!browse_folders %s %s %s " % (argList[0], argList[1], home))  # must pass url as argument
 
       for item in recent_paths:
-        wf.add_item(title=item, valid=True, arg="!name_file %s %s %s " % (argList[0], argList[1], item))
+        wf.add_item(title=item, valid=True, arg="!file_download %s %s %s " % (argList[0], argList[1], item))
 
     elif (command == "!browse_folders"):
       # argList[0]: the url
-      # argList[1]: the path
+      # argList[1]: index
+      # argList[2]: path
 
       search = " ".join(argList[3:])
 
@@ -392,7 +408,7 @@ def main(wf):
 
         paths = wf.filter(search, paths)
 
-        wf.add_item(title="Use this folder", subtitle="Download the file in this folder", valid=True, arg="!name_file %s %s %s " % (argList[0], argList[1], argList[2]))
+        wf.add_item(title="Use this folder", subtitle="Download the file in this folder", valid=True, arg="!file_download %s %s %s " % (argList[0], argList[1], argList[2]))
 
         for item in paths:
           if (item[0] != "."): wf.add_item(title=item, valid=True, arg="!browse_folders %s %s %s/%s " % (argList[0], argList[1], argList[2], item))
@@ -406,19 +422,28 @@ def main(wf):
       wf.add_item(title="Name the file: %s.%s" % (fileName, argList[1]), subtitle="Press ENTER to begin file download", valid=True, arg="!file_download %s %s %s.%s" % (argList[0], argList[2], fileName, argList[1]))
 
     elif (command == "!file_download"):
-      log.debug("Storing %s in recent paths" % (argList[1]))
+      # argList[0]: the url
+      # argList[1]: index
+      # argList[2]: path
+
+      filenames = wf.cached_data("filenames")
+      if (not isinstance(filenames, list)): return 1
+
+      filename = filenames[int(argList[1])]
+      log.debug("Filename: %s" % filename)
+
+      log.debug("Storing %s in recent paths" % (argList[2]))
       recentPaths = wf.stored_data('recent_paths')  # append used path
 
-      if (recentPaths.count(argList[1]) == 0): recentPaths.append(argList[1])  # check for duplicates
+      if (recentPaths.count(argList[2]) == 0): recentPaths.append(argList[2])  # check for duplicates
       wf.store_data("recent_paths", recentPaths)
 
       download = requests.get(argList[0])
-      fileName = " ".join(argList[2:])
 
-      with open("%s/%s" % (argList[1], fileName), "wb") as f:
+      with open("%s/%s" % (argList[2], filename), "wb") as f:
         f.write(download.content)
 
-      print("File download complete.")
+      log.debug("File download complete.")
 
     elif (command == "!set_url"):
       wf.add_item(title="Set Canvas URL to https://%s" % argList[0], subtitle="Current URL: https://%s" % str(URL), valid=True, arg="!url_set %s" % argList[0], icon="icons/link.png")
