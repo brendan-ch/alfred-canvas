@@ -393,8 +393,8 @@ def main(wf):
 
       wf.add_item(title="Open file browser", subtitle="Browse folders to save the file in", valid=True, arg="!browse_folders %s %s %s " % (argList[0], argList[1], home))  # must pass url as argument
 
-      for item in recent_paths:
-        wf.add_item(title=item, valid=True, arg="!file_download %s %s %s " % (argList[0], argList[1], item))
+      for i in range(-1, -len(recent_paths) - 1, -1):
+        wf.add_item(title=recent_paths[i], valid=True, arg="!file_download %s %s %s " % (argList[0], argList[1], recent_paths[i]))
 
     elif (command == "!browse_folders"):
       # argList[0]: the url
@@ -436,6 +436,10 @@ def main(wf):
       recentPaths = wf.stored_data('recent_paths')  # append used path
 
       if (recentPaths.count(argList[2]) == 0): recentPaths.append(argList[2])  # check for duplicates
+      elif (recentPaths[-1] != argList[2]):  # moves used path to first
+        recentPaths.remove(argList[2])
+        recentPaths.append(argList[2])
+
       wf.store_data("recent_paths", recentPaths)
 
       download = requests.get(argList[0])
