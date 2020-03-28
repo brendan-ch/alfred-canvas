@@ -2,7 +2,7 @@ from lib import requests
 import sys
 import os
 from datetime import datetime
-from workflow import Workflow, ICON_WARNING, ICON_ERROR
+from workflow import Workflow, notify, ICON_WARNING, ICON_ERROR
 
 TODAY = datetime.today().strftime("%Y-%m-%d")
 
@@ -124,6 +124,7 @@ def remove_duplicates(list1):  # remove duplicates from list
   return newList
 
 def main(wf):
+  # notify.notify(title="Hello there")
 
   log.debug("Today is %s" % TODAY)  # date needed for some stuff
 
@@ -391,7 +392,7 @@ def main(wf):
       search = "".join(argList[2:])
       home = os.path.expanduser("~")
 
-      wf.add_item(title="Open file browser", subtitle="Browse folders to save the file in", valid=True, arg="!browse_folders %s %s %s " % (argList[0], argList[1], home))  # must pass url as argument
+      wf.add_item(title="Open file browser", subtitle="Browse folders to save the file in", valid=True, arg="!browse_folders %s %s %s " % (argList[0], argList[1], home), icon="icons/right-arrow.png")  # must pass url as argument
 
       for i in range(-1, -len(recent_paths) - 1, -1):
         wf.add_item(title=recent_paths[i], valid=True, arg="!file_download %s %s %s " % (argList[0], argList[1], recent_paths[i]), icon="icons/folder.png")
@@ -408,10 +409,10 @@ def main(wf):
 
         paths = wf.filter(search, paths)
 
-        wf.add_item(title="Use this folder", subtitle="Download the file in this folder", valid=True, arg="!file_download %s %s %s " % (argList[0], argList[1], argList[2]))
+        wf.add_item(title="Use this folder", subtitle="Download the file in this folder", valid=True, arg="!file_download %s %s %s " % (argList[0], argList[1], argList[2]), icon="icons/submitted.png")
 
         for item in paths:
-          if (item[0] != "."): wf.add_item(title=item, valid=True, arg="!browse_folders %s %s %s/%s " % (argList[0], argList[1], argList[2], item))
+          if (item[0] != "."): wf.add_item(title=item, valid=True, arg="!browse_folders %s %s %s/%s " % (argList[0], argList[1], argList[2], item), icon="icons/folder.png")
 
       except:
         wf.add_item(title="Folder path doesn't exist.", subtitle="Please try using a different path.", icon=ICON_ERROR)
